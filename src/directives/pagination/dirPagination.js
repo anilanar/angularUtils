@@ -217,7 +217,7 @@
     }
 
     function dirPaginationControlsTemplateInstaller($templateCache) {
-        $templateCache.put('angularUtils.directives.dirPagination.template', '<ul class="pagination" ng-if="1 < pages.length || !autoHide"><li ng-if="boundaryLinks" ng-class="{ disabled : pagination.current == 1 }"><a href="" ng-click="setCurrent(1)">&laquo;</a></li><li ng-if="directionLinks" ng-class="{ disabled : pagination.current == 1 }"><a href="" ng-click="setCurrent(pagination.current - 1)">&lsaquo;</a></li><li ng-repeat="pageNumber in pages track by tracker(pageNumber, $index)" ng-class="{ active : pagination.current == pageNumber, disabled : pageNumber == \'...\' || ( ! autoHide && pages.length === 1 ) }"><a href="" ng-click="setCurrent(pageNumber)">{{ pageNumber }}</a></li><li ng-if="directionLinks" ng-class="{ disabled : pagination.current == pagination.last }"><a href="" ng-click="setCurrent(pagination.current + 1)">&rsaquo;</a></li><li ng-if="boundaryLinks"  ng-class="{ disabled : pagination.current == pagination.last }"><a href="" ng-click="setCurrent(pagination.last)">&raquo;</a></li></ul>');
+        $templateCache.put('angularUtils.directives.dirPagination.template', '<ul class="pagination" ng-if="1 < pages.length || !autoHide"><li ng-if="boundaryLinks" ng-class="{ disabled : disabled() || pagination.current == 1 }"><a href="" ng-click="setCurrent(1)" ng-disabled="disabled()">&laquo;</a></li><li ng-if="directionLinks" ng-class="{ disabled : disabled() || pagination.current == 1 }"><a href="" ng-click="setCurrent(pagination.current - 1)" ng-disabled="disabled()">&lsaquo;</a></li><li ng-repeat="pageNumber in pages track by tracker(pageNumber, $index)" ng-class="{ active : pagination.current == pageNumber, disabled : disabled() || pageNumber == \'...\' || ( ! autoHide && pages.length === 1 ) }"><a href="" ng-click="setCurrent(pageNumber)" ng-disabled="disabled()">{{ pageNumber }}</a></li><li ng-if="directionLinks" ng-class="{ disabled : disabled() || pagination.current == pagination.last }"><a href="" ng-click="setCurrent(pagination.current + 1)" ng-disabled="disabled()">&rsaquo;</a></li><li ng-if="boundaryLinks"  ng-class="{ disabled : disabled() || pagination.current == pagination.last }"><a href="" ng-click="setCurrent(pagination.last)" ng-disabled="disabled()">&raquo;</a></li></ul>');
     }
 
     function dirPaginationControlsDirective(paginationService, paginationTemplate) {
@@ -230,7 +230,8 @@
                 maxSize: '=?',
                 onPageChange: '&?',
                 paginationId: '=?',
-                autoHide: '=?'
+                autoHide: '=?',
+                disabled: '&?ngDisabled'
             },
             link: dirPaginationControlsLinkFn
         };
@@ -322,6 +323,9 @@
             });
 
             scope.setCurrent = function(num) {
+                if (scope.disabled()) {
+                    return;
+                }
                 if (paginationService.isRegistered(paginationId) && isValidPageNumber(num)) {
                     num = parseInt(num, 10);
                     paginationService.setCurrentPage(paginationId, num);
